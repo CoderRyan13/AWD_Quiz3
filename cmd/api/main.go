@@ -29,7 +29,7 @@ type application struct {
 func main() {
 	var cfg config
 	// read in the flags that are needed to populate our config
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
+	flag.IntVar(&cfg.port, "port", 4001, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development | staging | production")
 	flag.Parse()
 	// Create a logger

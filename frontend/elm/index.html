@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pikcha</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <!-- Our Elm application will render into this div-->
+        <div id="main"></div>
+        <script src="photo.js"></script>
+        <script>
+            Elm.Photo.init({
+                node: document.getElementById('main')
+            });
+        </script>
+    </body>
+</html>

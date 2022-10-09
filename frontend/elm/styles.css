@@ -1,0 +1,42 @@
+/* Rules for sizing the icon */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+
+.header {
+    background-color: #FFFFFF;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 40px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.detailed-photo img {
+    display: block;
+    width: 50%;
+}
+
+.detailed-photo .photo-info {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 15px;
+}
+
+.detailed-photo .star-button {
+    cursor: pointer;
+    margin-bottom: 10px;
+}
+
+.detailed-photo .caption {
+    font-size: 30px;
+    font-weight: lighter;
+    font-style: italic;
+    margin: 0 0 10px 0;
+}
