@@ -11,8 +11,8 @@ import (
 	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
 )
 
-// createSchoolHandler for the "Post /v1/schools" endpoint
-func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Request) {
+// createForumHandler for the "Post /v1/forums" endpoint
+func (app *application) createForumHandler(w http.ResponseWriter, r *http.Request) {
 	// Our target decode destination
 	var input struct {
 		Name    string   `json:"name"`
@@ -31,8 +31,8 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Copy the values from the input struct to a new School struct
-	school := &data.School{
+	// Copy the values from the input struct to a new Forum struct
+	forum := &data.Forum{
 		Name:    input.Name,
 		Level:   input.Level,
 		Contact: input.Contact,
@@ -46,7 +46,7 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 	v := validator.New()
 
 	// Check the map to determine if there were any validation errors
-	if data.ValidateSchool(v, school); !v.Valid() {
+	if data.ValidateForum(v, forum); !v.Valid() {
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
@@ -54,17 +54,17 @@ func (app *application) createSchoolHandler(w http.ResponseWriter, r *http.Reque
 	fmt.Fprintf(w, "%+v\n", input)
 }
 
-// showSchoolHandler for the "Post /v1/schools/:id" endpoint
-func (app *application) showSchoolHandler(w http.ResponseWriter, r *http.Request) {
+// showForumHandler for the "Post /v1/forums/:id" endpoint
+func (app *application) showForumHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
 		return
 	}
 
-	// Create a new instance of the School struct containing the ID we extracted
+	// Create a new instance of the Forum struct containing the ID we extracted
 	// from our URL and some sample data
-	school := data.School{
+	forum := data.Forum{
 		ID:        id,
 		CreatedAt: time.Now(),
 		Name:      "Apple Tree",
@@ -75,7 +75,7 @@ func (app *application) showSchoolHandler(w http.ResponseWriter, r *http.Request
 		Mode:      []string{"blended", "online"},
 		Version:   1,
 	}
-	err = app.writeJSON(w, http.StatusOK, envelope{"school": school}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"forum": forum}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
