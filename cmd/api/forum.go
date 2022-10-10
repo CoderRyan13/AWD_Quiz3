@@ -1,4 +1,4 @@
-// Filename: cmd/api/schools.go
+// Filename: cmd/api/forum.go
 
 package main
 

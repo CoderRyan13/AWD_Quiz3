@@ -1,4 +1,4 @@
-// Filename: internal/data/schools.go
+// Filename: internal/data/forum.go
 
 package data
 
@@ -43,7 +43,7 @@ func ValidateSchool(v *validator.Validator, school *School) {
 	v.Check(validator.ValidWebsite(school.Website), "website", "must be a valid URL")
 
 	v.Check(school.Address != "", "address", "must be provided")
-	v.Check(len(school.Address) <= 500, "contact", "must not be more than 500 bytes long")
+	v.Check(len(school.Address) <= 500, "address", "must not be more than 500 bytes long")
 
 	v.Check(school.Mode != nil, "mode", "must be provided")
 	v.Check(len(school.Mode) >= 1, "mode", "must contain at least 1 entry")
