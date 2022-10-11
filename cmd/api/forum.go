@@ -96,7 +96,7 @@ func (app *application) showForumHandler(w http.ResponseWriter, r *http.Request)
 }
 
 func (app *application) updateForumHandler(w http.ResponseWriter, r *http.Request) {
-	// This method does a complete replacement
+	// This method does a partial replacement
 	// Get the id for the forum that needs updating
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -116,14 +116,17 @@ func (app *application) updateForumHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 	// Create an input struct to hold data read in from the client
+	// We update input struct to use pointers because pointers have a
+	// default value of nil
+	// If a field remains nil then we know the client did not update it
 	var input struct {
-		Name    string   `json:"name"`
-		Level   string   `json:"level"`
-		Contact string   `json:"contact"`
-		Phone   string   `json:"phone"`
-		Email   string   `json:"email"`
-		Website string   `json:"website"`
-		Address string   `json:"address"`
+		Name    *string  `json:"name"`
+		Level   *string  `json:"level"`
+		Contact *string  `json:"contact"`
+		Phone   *string  `json:"phone"`
+		Email   *string  `json:"email"`
+		Website *string  `json:"website"`
+		Address *string  `json:"address"`
 		Mode    []string `json:"mode"`
 	}
 	// Initialize a new json.Decoder instance
@@ -132,17 +135,31 @@ func (app *application) updateForumHandler(w http.ResponseWriter, r *http.Reques
 		app.badRequestResponse(w, r, err)
 		return
 	}
-
-	// Copy / Update the fields / values in the forum variable using the fields
-	// in the input struct
-	forum.Name = input.Name
-	forum.Level = input.Level
-	forum.Contact = input.Contact
-	forum.Phone = input.Phone
-	forum.Email = input.Email
-	forum.Website = input.Website
-	forum.Address = input.Address
-	forum.Mode = input.Mode
+	// Check for updates
+	if input.Name != nil {
+		forum.Name = *input.Name
+	}
+	if input.Level != nil {
+		forum.Level = *input.Level
+	}
+	if input.Contact != nil {
+		forum.Contact = *input.Contact
+	}
+	if input.Phone != nil {
+		forum.Phone = *input.Phone
+	}
+	if input.Email != nil {
+		forum.Email = *input.Email
+	}
+	if input.Website != nil {
+		forum.Website = *input.Website
+	}
+	if input.Address != nil {
+		forum.Address = *input.Address
+	}
+	if input.Mode != nil {
+		forum.Mode = input.Mode
+	}
 	// Perform validation on the updated Forum. If validation fails, then
 	// we send a 422 - Unprocessable Entity response to the client
 	// Initialize a new Validator instance
@@ -161,6 +178,33 @@ func (app *application) updateForumHandler(w http.ResponseWriter, r *http.Reques
 	}
 	// Write the data returned by Update()
 	err = app.writeJSON(w, http.StatusOK, envelope{"forum": forum}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) deleteForumHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the id for the forum that needs to be deleted
+	id, err := app.readIDParam(r)
+	if err != nil {
+		app.notFoundResponse(w, r)
+		return
+	}
+	// Delete the Forum from the database. Send a 404 Not Found status code to the
+	// client if there is no matching record
+	err = app.models.Forums.Delete(id)
+	// Handle errors
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
+	}
+	// Return 200 Status OK to the client with a successful message
+	err = app.writeJSON(w, http.StatusOK, envelope{"message": "forum successfully deleted"}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}

@@ -16,7 +16,7 @@ type Forum struct {
 	CreatedAt time.Time `json:"-"`  // doesn't display to client
 	Name      string    `json:"name"`
 	Level     string    `json:"level"`
-	Contact   string    `json:"contat"`
+	Contact   string    `json:"contact"`
 	Phone     string    `json:"phone"`
 	Email     string    `json:"email,omitempty"`
 	Website   string    `json:"website,omitempty"`
@@ -145,5 +145,29 @@ func (m ForumModel) Update(forum *Forum) error {
 
 // Delete() removes a specific Forum
 func (m ForumModel) Delete(id int64) error {
+	// Ensure that there is a valid id
+	if id < 1 {
+		return ErrRecordNotFound
+	}
+	// Create the delete query
+	query := `
+		DELETE FROM forums
+		WHERE id = $1
+	`
+	// Execute the query
+	result, err := m.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	// Check how many rows were affected by the delete operation. We
+	// call the RowsAffected() method on the result variable
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	// Check if no rows were affected
+	if rowsAffected == 0 {
+		return ErrRecordNotFound
+	}
 	return nil
 }
