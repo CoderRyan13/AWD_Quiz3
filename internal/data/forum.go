@@ -120,7 +120,27 @@ func (m ForumModel) Get(id int64) (*Forum, error) {
 
 // Update() allows us to edit/alter a specific Forum
 func (m ForumModel) Update(forum *Forum) error {
-	return nil
+	// Create a query
+	query := `
+		UPDATE forums
+		SET name = $1, level = $2, contact = $3, 
+			phone = $4, email = $5, website = $6,
+			address = $7, mode = $8, version = version + 1
+		WHERE id = $9
+		RETURNING version
+	`
+	args := []interface{}{
+		forum.Name,
+		forum.Level,
+		forum.Contact,
+		forum.Phone,
+		forum.Email,
+		forum.Website,
+		forum.Address,
+		pq.Array(forum.Mode),
+		forum.ID,
+	}
+	return m.DB.QueryRow(query, args...).Scan(&forum.Version)
 }
 
 // Delete() removes a specific Forum
