@@ -3,9 +3,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
-	"time"
 
 	"AWD_FinalProject.ryanarmstrong.net/internal/data"
 	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
@@ -76,19 +76,19 @@ func (app *application) showForumHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Create a new instance of the Forum struct containing the ID we extracted
-	// from our URL and some sample data
-	forum := data.Forum{
-		ID:        id,
-		CreatedAt: time.Now(),
-		Name:      "Apple Tree",
-		Level:     "High School",
-		Contact:   "Anna Smith",
-		Phone:     "636-3636",
-		Address:   "13 Apple street",
-		Mode:      []string{"blended", "online"},
-		Version:   1,
+	// Fetch the specific forum
+	forum, err := app.models.Forums.Get(id)
+	// Handle errors
+	if err != nil {
+		switch {
+		case errors.Is(err, data.ErrRecordNotFound):
+			app.notFoundResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
+		return
 	}
+	// Write the data returned by Get()
 	err = app.writeJSON(w, http.StatusOK, envelope{"forum": forum}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)

@@ -4,6 +4,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"time"
 
 	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
@@ -77,7 +78,44 @@ func (m ForumModel) Insert(forum *Forum) error {
 
 // Get() allows us to recieve a specific Forum
 func (m ForumModel) Get(id int64) (*Forum, error) {
-	return nil, nil
+	// Ensure that there is a valid id
+	if id < 1 {
+		return nil, ErrRecordNotFound
+	}
+	// Create the query
+	query := `
+		SELECT id, created_at, name, level, contact, phone, email, website, address, mode, version
+		FROM forums
+		WHERE id = $1
+	`
+	// Declare a Forum variable to hold the returned data
+	var forum Forum
+	// Execute the query using QueryRow()
+	err := m.DB.QueryRow(query, id).Scan(
+		&forum.ID,
+		&forum.CreatedAt,
+		&forum.Name,
+		&forum.Level,
+		&forum.Contact,
+		&forum.Phone,
+		&forum.Email,
+		&forum.Website,
+		&forum.Address,
+		pq.Array(&forum.Mode),
+		&forum.Version,
+	)
+	// Handle any errors
+	if err != nil {
+		// Check the type of error
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
+	}
+	// Success
+	return &forum, nil
 }
 
 // Update() allows us to edit/alter a specific Forum
