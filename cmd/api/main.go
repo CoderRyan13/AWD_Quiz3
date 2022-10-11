@@ -12,6 +12,7 @@ import (
 	"os"
 	"time"
 
+	"AWD_FinalProject.ryanarmstrong.net/internal/data"
 	_ "github.com/lib/pq"
 )
 
@@ -34,6 +35,7 @@ type config struct {
 type application struct {
 	config config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -61,6 +63,7 @@ func main() {
 	app := &application{
 		config: cfg,
 		logger: logger,
+		models: data.NewModels(db),
 	}
 	// Create our new servemux
 	mux := http.NewServeMux()

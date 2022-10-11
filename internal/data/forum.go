@@ -3,9 +3,11 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
+	"github.com/lib/pq"
 )
 
 type Forum struct {
@@ -49,4 +51,41 @@ func ValidateForum(v *validator.Validator, forum *Forum) {
 	v.Check(len(forum.Mode) >= 1, "mode", "must contain at least 1 entry")
 	v.Check(len(forum.Mode) <= 5, "mode", "must contain at most 5 entries")
 	v.Check(validator.Unique(forum.Mode), "mode", "must not contain duplicate entries")
+}
+
+// Define a ForumModel which wraps a sql.DB connection pool
+type ForumModel struct {
+	DB *sql.DB
+}
+
+// Insert() allows us to create a new Forum
+func (m ForumModel) Insert(forum *Forum) error {
+	query := `
+		INSERT INTO forums (name, level, contact, phone, email, website, address, mode)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id, created_at, version
+	`
+	// Collect the data fields into a slice
+	args := []interface{}{
+		forum.Name, forum.Level,
+		forum.Contact, forum.Phone,
+		forum.Email, forum.Website,
+		forum.Address, pq.Array(forum.Mode),
+	}
+	return m.DB.QueryRow(query, args...).Scan(&forum.ID, &forum.CreatedAt, &forum.Version)
+}
+
+// Get() allows us to recieve a specific Forum
+func (m ForumModel) Get(id int64) (*Forum, error) {
+	return nil, nil
+}
+
+// Update() allows us to edit/alter a specific Forum
+func (m ForumModel) Update(forum *Forum) error {
+	return nil
+}
+
+// Delete() removes a specific Forum
+func (m ForumModel) Delete(id int64) error {
+	return nil
 }

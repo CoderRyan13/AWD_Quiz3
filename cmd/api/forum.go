@@ -50,8 +50,22 @@ func (app *application) createForumHandler(w http.ResponseWriter, r *http.Reques
 		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
-	// Display the request
-	fmt.Fprintf(w, "%+v\n", input)
+
+	// Create a Forum
+	err = app.models.Forums.Insert(forum)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+
+	// Create a Location header for the newly created resource/Forum
+	headers := make(http.Header)
+	headers.Set("Location", fmt.Sprintf("/v1/forums/%d", forum.ID))
+	// Write the JSON response with 201 - Created status code with the body
+	// being the Forum data and the header being the headers map
+	err = app.writeJSON(w, http.StatusCreated, envelope{"forum": forum}, headers)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
 }
 
 // showForumHandler for the "Post /v1/forums/:id" endpoint
