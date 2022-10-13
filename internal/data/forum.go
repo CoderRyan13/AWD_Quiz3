@@ -3,6 +3,7 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"time"
@@ -66,6 +67,10 @@ func (m ForumModel) Insert(forum *Forum) error {
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING id, created_at, version
 	`
+	// Create a context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Cleanup to prevent memory leaks
+	defer cancel()
 	// Collect the data fields into a slice
 	args := []interface{}{
 		forum.Name, forum.Level,
@@ -73,7 +78,7 @@ func (m ForumModel) Insert(forum *Forum) error {
 		forum.Email, forum.Website,
 		forum.Address, pq.Array(forum.Mode),
 	}
-	return m.DB.QueryRow(query, args...).Scan(&forum.ID, &forum.CreatedAt, &forum.Version)
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&forum.ID, &forum.CreatedAt, &forum.Version)
 }
 
 // Get() allows us to recieve a specific Forum
@@ -90,8 +95,12 @@ func (m ForumModel) Get(id int64) (*Forum, error) {
 	`
 	// Declare a Forum variable to hold the returned data
 	var forum Forum
+	// Create a context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Cleanup to prevent memory leaks
+	defer cancel()
 	// Execute the query using QueryRow()
-	err := m.DB.QueryRow(query, id).Scan(
+	err := m.DB.QueryRowContext(ctx, query, id).Scan(
 		&forum.ID,
 		&forum.CreatedAt,
 		&forum.Name,
@@ -131,6 +140,10 @@ func (m ForumModel) Update(forum *Forum) error {
 		AND version = $10
 		RETURNING version
 	`
+	// Create a context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Cleanup to prevent memory leaks
+	defer cancel()
 	args := []interface{}{
 		forum.Name,
 		forum.Level,
@@ -144,7 +157,7 @@ func (m ForumModel) Update(forum *Forum) error {
 		forum.Version,
 	}
 	// Check for edit conflicts
-	err := m.DB.QueryRow(query, args...).Scan(&forum.Version)
+	err := m.DB.QueryRowContext(ctx, query, args...).Scan(&forum.Version)
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
@@ -167,8 +180,12 @@ func (m ForumModel) Delete(id int64) error {
 		DELETE FROM forums
 		WHERE id = $1
 	`
+	// Create a context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	// Cleanup to prevent memory leaks
+	defer cancel()
 	// Execute the query
-	result, err := m.DB.Exec(query, id)
+	result, err := m.DB.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}
