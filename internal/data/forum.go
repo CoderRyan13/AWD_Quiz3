@@ -210,8 +210,8 @@ func (m ForumModel) GetAll(name string, level string, mode []string, filters Fil
 			   contact, phone, email, website, 
 			   address, mode, version
 		FROM forums
-		WHERE (LOWER(name) = LOWER($1) OR $1 = '')
-		AND (LOWER(level) = LOWER($2) OR $2 = '')
+		WHERE (to_tsvector('simple', name) @@ plainto_tsquery('simple', $1) OR $1 = '')
+		AND (to_tsvector('simple', level) @@ plainto_tsquery('simple', $2) OR $2 = '')
 		AND (mode @> $3 OR $3 = '{}')
 		ORDER BY id
 	`
