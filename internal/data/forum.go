@@ -201,3 +201,59 @@ func (m ForumModel) Delete(id int64) error {
 	}
 	return nil
 }
+
+// the GetAll() method returns a list of all the schools sorted by id
+func (m ForumModel) GetAll(name string, level string, mode []string, filters Filters) ([]*Forum, error) {
+	// Construct the query
+	query := `
+		SELECT id, created_at, name, level, 
+			   contact, phone, email, website, 
+			   address, mode, version
+		FROM forums
+		WHERE (LOWER(name) = LOWER($1) OR $1 = '')
+		AND (LOWER(level) = LOWER($2) OR $2 = '')
+		AND (mode @> $3 OR $3 = '{}')
+		ORDER BY id
+	`
+	// Create a 3-seconds-timeout context
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	// Execute the query
+	rows, err := m.DB.QueryContext(ctx, query, name, level, pq.Array(mode))
+	if err != nil {
+		return nil, err
+	}
+	// Close the resultset
+	defer rows.Close()
+	// Initialize an empty slice to hold the Forum data
+	forums := []*Forum{}
+	// Iterate over the rows in the resultset
+	for rows.Next() {
+		var forum Forum
+		// Scan the values from the row into the forum
+		err := rows.Scan(
+			&forum.ID,
+			&forum.CreatedAt,
+			&forum.Name,
+			&forum.Level,
+			&forum.Contact,
+			&forum.Phone,
+			&forum.Email,
+			&forum.Website,
+			&forum.Address,
+			pq.Array(&forum.Mode),
+			&forum.Version,
+		)
+		if err != nil {
+			return nil, err
+		}
+		// Add the Forum to our slice
+		forums = append(forums, &forum)
+	}
+	// Check for errors after looping through the resultset
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	// Return the slice of Forums
+	return forums, nil
+}

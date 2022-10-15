@@ -214,3 +214,47 @@ func (app *application) deleteForumHandler(w http.ResponseWriter, r *http.Reques
 		app.serverErrorResponse(w, r, err)
 	}
 }
+
+// The listForumsHandler allows the client to see a listing of forums
+// based on a set of criteria
+func (app *application) listForumsHandler(w http.ResponseWriter, r *http.Request) {
+	// Create an input struct to hold our query parameters
+	var input struct {
+		Name  string
+		Level string
+		Mode  []string
+		data.Filters
+	}
+	// Initialize a validator
+	v := validator.New()
+	// Get the URL values map
+	qs := r.URL.Query()
+	// Use the helper methods to extract the values
+	input.Name = app.readString(qs, "name", "")
+	input.Level = app.readString(qs, "level", "")
+	input.Mode = app.readCSV(qs, "mode", []string{})
+	// Get the page information
+	input.Filters.Page = app.readInt(qs, "page", 1, v)
+	input.Filters.PageSize = app.readInt(qs, "page_size", 20, v)
+	// Get the sort information
+	input.Filters.Sort = app.readString(qs, "sort", "id")
+	// Specify the allowed sort values
+	input.Filters.SortList = []string{"id", "name", "level", "-id", "-name", "-level"}
+	// Check for validation errors
+	if data.ValidateFilers(v, input.Filters); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+	// Get a listing of all forums
+	forums, err := app.models.Forums.GetAll(input.Name, input.Level, input.Mode, input.Filters)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+	// Send a JSON response containing all the forums
+	err = app.writeJSON(w, http.StatusOK, envelope{"forums": forums}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+}
