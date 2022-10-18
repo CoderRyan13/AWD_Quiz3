@@ -246,13 +246,13 @@ func (app *application) listForumsHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 	// Get a listing of all forums
-	forums, err := app.models.Forums.GetAll(input.Name, input.Level, input.Mode, input.Filters)
+	forums, metadata, err := app.models.Forums.GetAll(input.Name, input.Level, input.Mode, input.Filters)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
 	}
 	// Send a JSON response containing all the forums
-	err = app.writeJSON(w, http.StatusOK, envelope{"forums": forums}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"forums": forums, "metadata": metadata}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
