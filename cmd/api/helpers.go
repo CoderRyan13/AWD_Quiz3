@@ -12,7 +12,7 @@ import (
 	"strconv"
 	"strings"
 
-	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
+	"AWD_Quiz3.ryanarmstrong.net/internal/validator"
 	"github.com/julienschmidt/httprouter"
 )
 

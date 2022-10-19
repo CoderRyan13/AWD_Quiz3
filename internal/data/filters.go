@@ -6,7 +6,7 @@ import (
 	"math"
 	"strings"
 
-	"AWD_FinalProject.ryanarmstrong.net/internal/validator"
+	"AWD_Quiz3.ryanarmstrong.net/internal/validator"
 )
 
 type Filters struct {

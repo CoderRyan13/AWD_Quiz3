@@ -14,12 +14,12 @@ var (
 
 // A wrapper for our data models
 type Models struct {
-	Forums ForumModel
+	Todos TodoModel
 }
 
 // NewModels() allows us to create a new Models
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Forums: ForumModel{DB: db},
+		Todos: TodoModel{DB: db},
 	}
 }

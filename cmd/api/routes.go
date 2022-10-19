@@ -14,11 +14,11 @@ func (app *application) routes() *httprouter.Router {
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 	router.MethodNotAllowed = http.HandlerFunc(app.methodNotAllowedResponse)
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/forums", app.listForumsHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/forums", app.createForumHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/forums/:id", app.showForumHandler)
-	router.HandlerFunc(http.MethodPatch, "/v1/forums/:id", app.updateForumHandler)
-	router.HandlerFunc(http.MethodDelete, "/v1/forums/:id", app.deleteForumHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/todos", app.listTodosHandler)
+	router.HandlerFunc(http.MethodPost, "/v1/todos", app.createTodoHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/todos/:id", app.showTodoHandler)
+	router.HandlerFunc(http.MethodPatch, "/v1/todos/:id", app.updateTodoHandler)
+	router.HandlerFunc(http.MethodDelete, "/v1/todos/:id", app.deleteTodoHandler)
 
 	return router
 }

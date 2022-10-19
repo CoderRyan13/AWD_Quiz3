@@ -1,4 +1,4 @@
-module AWD_FinalProject.ryanarmstrong.net
+module AWD_Quiz3.ryanarmstrong.net
 
 go 1.18
 
