@@ -15,8 +15,7 @@ import (
 func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request) {
 	// Our target decode destination
 	var input struct {
-		Task     string `json:"task"`
-		Complete string `json:"complete"`
+		Task string `json:"task"`
 	}
 	// Initialize a new json.Decoder instance
 	err := app.readJSON(w, r, &input)
@@ -27,8 +26,7 @@ func (app *application) createTodoHandler(w http.ResponseWriter, r *http.Request
 
 	// Copy the values from the input struct to a new Todo struct
 	todo := &data.Todo{
-		Task:     input.Task,
-		Complete: input.Complete,
+		Task: input.Task,
 	}
 	// Initialize a new Validator instance
 	v := validator.New()

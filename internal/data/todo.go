@@ -25,8 +25,8 @@ func ValidateTodo(v *validator.Validator, todo *Todo) {
 	v.Check(todo.Task != "", "task", "must be provided")
 	v.Check(len(todo.Task) <= 200, "task", "must not be more than 200 bytes long")
 
-	v.Check(todo.Complete != "", "complete", "must be provided")
-	v.Check(len(todo.Complete) <= 200, "complete", "must not be more than 200 bytes long")
+	//v.Check(todo.Complete != "", "complete", "must be provided")
+	//v.Check(len(todo.Complete) <= 200, "complete", "must not be more than 200 bytes long")
 
 }
 
@@ -38,9 +38,9 @@ type TodoModel struct {
 // Insert() allows us to create a new Task
 func (m TodoModel) Insert(todo *Todo) error {
 	query := `
-		INSERT INTO todos (task, complete)
-		VALUES ($1, "NO")
-		RETURNING id, created_at, version
+		INSERT INTO todos (task)
+		VALUES ($1)
+		RETURNING id, created_at, version, complete
 	`
 	// Create a context
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -49,9 +49,8 @@ func (m TodoModel) Insert(todo *Todo) error {
 	// Collect the data fields into a slice
 	args := []interface{}{
 		todo.Task,
-		todo.Complete,
 	}
-	return m.DB.QueryRowContext(ctx, query, args...).Scan(&todo.ID, &todo.CreatedAt, &todo.Version)
+	return m.DB.QueryRowContext(ctx, query, args...).Scan(&todo.ID, &todo.CreatedAt, &todo.Version, &todo.Complete)
 }
 
 // Get() allows us to recieve a specific Task
@@ -112,6 +111,7 @@ func (m TodoModel) Update(todo *Todo) error {
 	args := []interface{}{
 		todo.Task,
 		todo.Complete,
+		todo.ID,
 		todo.Version,
 	}
 	// Check for edit conflicts
